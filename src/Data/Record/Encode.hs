@@ -12,13 +12,23 @@ import Generics.SOP.NP
 import Generics.SOP.NS
 import Generics.SOP.Constraint -- (SListIN(..))
 
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax (dataToExpQ)
 
-import Data.Data
-import Data.Typeable (Typeable(..), cast)
 
--- import GHC.Generics
+{-|
+
+Template Haskell is used to analyze /types/, whereas "generics" are used to analyze /values/.
+
+The above distinction is fundamental; for example,
+
+* To analyze a type we'll use machinery similar to this:
+
+https://markkarpov.com/tutorial/th.html#example-1-instance-generation
+
+* To analyze a value, we'll require its type to have both a GHC.Generics.Generic instance and a Generics.SOP.Generic one (from 'generics-sop'), and then operate on the generic representation.
+
+-}
+
+
 
 -- λ> from (42, 'z')
 -- SOP (Z (I 42 :* I 'z' :* Nil))
@@ -50,6 +60,12 @@ instance Generic (Fy a)
 data P1 a = P1 Fx (Fy a) deriving (Eq, Show, G.Generic)
 instance Generic (P1 a)
 
+p10 :: P1 Integer
+p10 = P1 Ax (Ay 42)
+
+gp10 :: SOP I '[ '[Fx, Fy Integer] ]
+gp10 = from p10
+
 -- λ> from $ P1 Ax (Ay 42)
 -- SOP (Z (I Ax :* I (Ay 42) :* Nil))
 
@@ -57,7 +73,7 @@ instance Generic (P1 a)
 data P2 = P2 Fx Fx deriving (Eq, Show, G.Generic)
 instance Generic P2
 
--- | Can be used to encode
+-- | 'gfromEnum' returns the index of each constructor, encoded as an integer.
 -- λ> gfromEnum $ P2 Ax Bx
 -- [0,1]
 -- λ> gfromEnum $ P2 Ax Cx
@@ -68,8 +84,6 @@ gfromEnum = hcollapse . hcmap (Proxy :: Proxy Enum) (mapIK fromEnum) . from
 -- | !!! Enum types can only have nullary (== 0-argument) constructors
 -- data Fz a = Az a | Bz deriving (Eq, Show, Enum, G.Generic)
 
-
-
 -- collapse_NP :: NP (K a) xs -> [a]
 
 -- f ~> g :: forall a . f a -> g a 
@@ -79,14 +93,14 @@ unZSOP = unZ . unSOP
 
 
 
--- * Experiments with 'hcmap'+'hcollapse'.
+-- * Experiments with 'hcmap'.
 -- Constrained folds over types that have a Generic representation
 --
 -- The constraint in the function argument of 'hcmap' indicates
 -- that all elements should share some common property, e.g. being instances
 -- of some class. See the role of Bla and Show.
 --
--- The Proxy argument hints the compiler to use the
+-- The Proxy argument hints the compiler as to which type to use (in this case, which typeclass to serve as constraint of all elements)
 
 class Bla a where
   bla :: a -> ()
@@ -103,5 +117,12 @@ class Bla a where
 
 -- gshow :: (AllF (All Show) (Code a), Generic a) => a -> [String]
 -- gshow = hcollapse . hcmap (Proxy :: Proxy Show) (mapIK show) . from
+
+
+
+
+
+
+--
 
 

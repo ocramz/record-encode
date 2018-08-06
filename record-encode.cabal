@@ -19,7 +19,7 @@ library
   ghc-options:         -Wall
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
-                       Data.Record.Encode.Generic
+  other-modules:       Data.Record.Decode.TH
   build-depends:       base >= 4.7 && < 5
                      , generics-sop
                      , template-haskell

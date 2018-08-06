@@ -1,2 +1,5 @@
 # record-encode
-Generic encoding of record types
+
+[![Build Status](https://travis-ci.org/ocramz/record-encode.png)](https://travis-ci.org/ocramz/record-encode)
+
+TODO Description.

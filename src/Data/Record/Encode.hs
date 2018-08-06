@@ -1,4 +1,6 @@
 {-# language DeriveGeneric #-}
+{-# language GADTs #-}
+-- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
 import qualified GHC.Generics as G
@@ -6,7 +8,7 @@ import qualified GHC.Generics as G
 import Generics.SOP
 import Generics.SOP.NP
 import Generics.SOP.NS
-import Generics.SOP.Constraint (SListIN(..))
+import Generics.SOP.Constraint -- (SListIN(..))
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax (dataToExpQ)
@@ -48,3 +50,23 @@ instance Generic (P1 a)
 
 -- λ> from $ P1 Ax (Ay 42)
 -- SOP (Z (I Ax :* I (Ay 42) :* Nil))
+
+class Bla a where
+  bla :: a -> ()
+  bla _ = ()
+
+instance Bla Fx 
+
+instance Bla (Fy a) 
+
+-- instance Bla (P1 a) 
+
+gbla :: (AllF (All Bla) (Code a), Generic a) => a -> [()]
+gbla = hcollapse . hcmap (Proxy :: Proxy Bla) (mapIK bla) . from
+
+
+gshow :: (AllF (All Show) (Code a), Generic a) => a -> [String]
+gshow = hcollapse . hcmap (Proxy :: Proxy Show) (mapIK show) . from
+
+
+-- collapse_NP :: NP (K a) xs -> [a]

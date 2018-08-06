@@ -1,5 +1,7 @@
 {-# language DeriveGeneric #-}
 {-# language GADTs #-}
+{-# language DataKinds #-}
+{-# language FlexibleContexts #-}
 -- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
@@ -38,7 +40,7 @@ instance Generic P0
 -- SOP (Z (K () :* K () :* Nil))
 
 
-data Fx = Ax | Bx | Cx deriving (Eq, Show, G.Generic)
+data Fx = Ax | Bx | Cx deriving (Eq, Show, Enum, G.Generic)
 instance Generic Fx
 
 data Fy a = Ay a | By | Cy deriving (Eq, Show, G.Generic)
@@ -51,22 +53,55 @@ instance Generic (P1 a)
 -- λ> from $ P1 Ax (Ay 42)
 -- SOP (Z (I Ax :* I (Ay 42) :* Nil))
 
+
+data P2 = P2 Fx Fx deriving (Eq, Show, G.Generic)
+instance Generic P2
+
+-- | Can be used to encode
+-- λ> gfromEnum $ P2 Ax Bx
+-- [0,1]
+-- λ> gfromEnum $ P2 Ax Cx
+-- [0,2]
+gfromEnum :: (AllF (All Enum) (Code a), Generic a) => a -> [Int]
+gfromEnum = hcollapse . hcmap (Proxy :: Proxy Enum) (mapIK fromEnum) . from
+
+-- | !!! Enum types can only have nullary (== 0-argument) constructors
+-- data Fz a = Az a | Bz deriving (Eq, Show, Enum, G.Generic)
+
+
+
+-- collapse_NP :: NP (K a) xs -> [a]
+
+-- f ~> g :: forall a . f a -> g a 
+
+unZSOP :: SOP f '[x] -> NP f x
+unZSOP = unZ . unSOP
+
+
+
+-- * Experiments with 'hcmap'+'hcollapse'.
+-- Constrained folds over types that have a Generic representation
+--
+-- The constraint in the function argument of 'hcmap' indicates
+-- that all elements should share some common property, e.g. being instances
+-- of some class. See the role of Bla and Show.
+--
+-- The Proxy argument hints the compiler to use the
+
 class Bla a where
   bla :: a -> ()
   bla _ = ()
 
-instance Bla Fx 
+-- instance Bla Fx 
 
-instance Bla (Fy a) 
+-- instance Bla (Fy a) 
 
--- instance Bla (P1 a) 
+-- -- instance Bla (P1 a) 
 
-gbla :: (AllF (All Bla) (Code a), Generic a) => a -> [()]
-gbla = hcollapse . hcmap (Proxy :: Proxy Bla) (mapIK bla) . from
+-- gbla :: (AllF (All Bla) (Code a), Generic a) => a -> [()]
+-- gbla = hcollapse . hcmap (Proxy :: Proxy Bla) (mapIK bla) . from
+
+-- gshow :: (AllF (All Show) (Code a), Generic a) => a -> [String]
+-- gshow = hcollapse . hcmap (Proxy :: Proxy Show) (mapIK show) . from
 
 
-gshow :: (AllF (All Show) (Code a), Generic a) => a -> [String]
-gshow = hcollapse . hcmap (Proxy :: Proxy Show) (mapIK show) . from
-
-
--- collapse_NP :: NP (K a) xs -> [a]

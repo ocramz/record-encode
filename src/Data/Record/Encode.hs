@@ -2,6 +2,7 @@
 {-# language GADTs #-}
 {-# language DataKinds #-}
 {-# language FlexibleContexts #-}
+{-# language TypeFamilies #-}
 -- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
@@ -12,21 +13,15 @@ import Generics.SOP.NP
 import Generics.SOP.NS
 import Generics.SOP.Constraint -- (SListIN(..))
 
+import GHC.TypeNats
+
 -- import GHC.ST
 -- import Control.Monad.Primitive
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
 
--- | Create a one-hot vector
-oneHot :: Num a =>
-          Int  -- ^ Vector length
-       -> Int  -- ^ Index of "1" entry
-       -> V.Vector a
-oneHot n i = V.create $ do
-  vm <- VM.replicate n 0
-  VM.write vm i 1
-  return vm
+
 
 
 
@@ -73,6 +68,9 @@ instance Generic Fx
 data Fy a = Ay a | By | Cy deriving (Eq, Show, G.Generic)
 instance Generic (Fy a)
 
+data Gx = Ax' | Bx' | Cx' deriving (Eq, Show, Enum, G.Generic)
+instance Generic Gx
+
 -- | a Product-Of-Sums
 data P1 a = P1 Fx (Fy a) deriving (Eq, Show, G.Generic)
 instance Generic (P1 a)
@@ -105,6 +103,21 @@ gfromEnum = hcollapse . hcmap (Proxy :: Proxy Enum) (mapIK fromEnum) . from
 
 -- f ~> g :: forall a . f a -> g a 
 
+-- | Create a one-hot vector
+oneHot :: Num a =>
+          Int  -- ^ Vector length
+       -> Int  -- ^ Index of "1" entry
+       -> V.Vector a
+oneHot n i = V.create $ do
+  vm <- VM.replicate n 0
+  VM.write vm i 1
+  return vm
+
+class Encode d where
+  type TyEnc d :: *
+  encode :: d -> V.Vector (TyEnc d)
+  
+
 unZSOP :: SOP f '[x] -> NP f x
 unZSOP = unZ . unSOP
 
@@ -122,6 +135,7 @@ unZSOP = unZ . unSOP
 class Bla a where
   bla :: a -> ()
   bla _ = ()
+
 
 -- instance Bla Fx 
 

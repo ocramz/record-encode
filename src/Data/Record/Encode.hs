@@ -12,6 +12,23 @@ import Generics.SOP.NP
 import Generics.SOP.NS
 import Generics.SOP.Constraint -- (SListIN(..))
 
+-- import GHC.ST
+-- import Control.Monad.Primitive
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as VM
+
+
+-- | Create a one-hot vector
+oneHot :: Num a =>
+          Int  -- ^ Vector length
+       -> Int  -- ^ Index of "1" entry
+       -> V.Vector a
+oneHot n i = V.create $ do
+  vm <- VM.replicate n 0
+  VM.write vm i 1
+  return vm
+
+
 
 
 {-|

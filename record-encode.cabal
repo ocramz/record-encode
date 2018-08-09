@@ -16,15 +16,15 @@ tested-with:         GHC == 8.4.3
 
 library
   default-language:    Haskell2010
-  ghc-options:         -Wall
+  ghc-options:         -Wall -ddump-splices -ddump-to-file
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
   other-modules:       Data.Record.Decode.TH
   build-depends:       base >= 4.7 && < 5
                      , generics-sop
+                     -- , primitive
                      , template-haskell
-
-
+                     , vector
 
 test-suite spec
   default-language:    Haskell2010

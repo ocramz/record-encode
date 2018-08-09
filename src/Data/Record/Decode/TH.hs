@@ -1,11 +1,13 @@
 {-# language TemplateHaskell #-}
 module Data.Record.Decode.TH where
 
+import Control.Monad (foldM)
+
 import Language.Haskell.TH -- (Q(..), Info(..), Name(..), reify, lookupTypeName, runQ)
 import Language.Haskell.TH.Syntax -- (Dec(..), Type(..), dataToExpQ, Quasi(..))
 
 import Data.Data
-import Data.Typeable (Typeable(..), cast)
+-- import Data.Typeable (Typeable(..), cast)
 
 -- | Count the number of distinct values that a type can have
 class Countable a where
@@ -33,8 +35,21 @@ deriveCountableComposite name = do
     f (NormalC _ ts) = handleCon (snd <$> ts)
     f (RecC    _ ts) = handleCon (thd <$> ts)
     f _              = fail "unsupported data type"
-    handleCon ts = foldr mulE [| 1 |] (countTypeE <$> ts)
-    countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
     addE x y     = [| $x + $y |]
-    mulE x y     = [| $x * $y |]
     thd (_,_,x)  = x
+
+
+handleCon :: (Foldable t, Functor t) => t Type -> Q Exp
+handleCon ts = foldr mulE [| 1 |] (countTypeE <$> ts) where
+    countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
+    mulE x y     = [| $x * $y |]
+
+
+deriveCountable :: Name -> Q [Dec]
+deriveCountable name = do
+  let ts = [ConT name]
+  hasEnum    <- isInstance ''Enum    ts
+  hasBounded <- isInstance ''Bounded ts
+  if hasEnum && hasBounded
+    then deriveCountableSimple    name
+    else deriveCountableComposite name

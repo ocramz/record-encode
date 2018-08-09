@@ -121,8 +121,9 @@ class Encode i d where
   -- encode :: d -> V.Vector (ETy d)
   -- encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
 
+-- | Some pointwise decision (e.g. maximum a posteriori) from a mixture of labels to a single value
 class Decode i d where
-  decode :: V.Vector i -> Maybe d
+  decode :: V.Vector i -> d
   
   
 

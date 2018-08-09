@@ -114,8 +114,10 @@ oneHot n i = V.create $ do
   return vm
 
 class Encode d where
-  type TyEnc d :: *
-  encode :: d -> V.Vector (TyEnc d)
+  type ETy d :: *
+  type EIx d :: *  
+  encode :: d -> V.Vector (ETy d)
+  encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
   
 
 unZSOP :: SOP f '[x] -> NP f x

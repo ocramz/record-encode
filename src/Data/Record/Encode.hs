@@ -3,6 +3,7 @@
 {-# language DataKinds #-}
 {-# language FlexibleContexts #-}
 {-# language TypeFamilies #-}
+{-# language MultiParamTypeClasses #-}
 -- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
@@ -113,11 +114,16 @@ oneHot n i = V.create $ do
   VM.write vm i 1
   return vm
 
-class Encode d where
-  type ETy d :: *
-  type EIx d :: *  
-  encode :: d -> V.Vector (ETy d)
-  encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
+class Encode i d where
+  -- type ETy d :: *
+  encode :: d -> V.Vector i
+  -- type EIx d :: *  
+  -- encode :: d -> V.Vector (ETy d)
+  -- encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
+
+class Decode i d where
+  decode :: V.Vector i -> Maybe d
+  
   
 
 unZSOP :: SOP f '[x] -> NP f x

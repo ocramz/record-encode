@@ -19,6 +19,7 @@ library
   ghc-options:         -Wall -ddump-splices -ddump-to-file
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
+                       Data.Record.Encode.Generics
   other-modules:       Data.Record.Decode.TH
   build-depends:       base >= 4.7 && < 5
                      , generics-sop

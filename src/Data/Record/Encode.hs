@@ -4,6 +4,9 @@
 {-# language FlexibleContexts #-}
 {-# language TypeFamilies #-}
 {-# language MultiParamTypeClasses #-}
+{-# language QuasiQuotes #-}
+
+{-# language TemplateHaskell #-}
 -- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
@@ -16,14 +19,22 @@ import Generics.SOP.Constraint -- (SListIN(..))
 
 import GHC.TypeNats
 
+import Language.Haskell.TH
+import Language.Haskell.TH.Syntax
+
 -- import GHC.ST
 -- import Control.Monad.Primitive
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
+import Data.Record.Decode.TH
 
 
+-- -- moo :: Q Exp
+-- -- moo = [| \x -> x + 1 |]
 
+-- data Moo a = Moo a deriving (Show, G.Generic)
+-- moo = [| Moo |]
 
 
 
@@ -43,6 +54,7 @@ https://markkarpov.com/tutorial/th.html#example-1-instance-generation
 
 
 
+
 -- λ> from (42, 'z')
 -- SOP (Z (I 42 :* I 'z' :* Nil))
 
@@ -56,8 +68,15 @@ https://markkarpov.com/tutorial/th.html#example-1-instance-generation
 -- instance Generic X 
 
 
-data P0 = P0 Int Char deriving (Eq, Show, G.Generic)
+-- deriveCountable ''(NS I '[])
+
+data P0 = P0 Bool Char deriving (Eq, Show, G.Generic)
 instance Generic P0
+
+deriveCountable ''Bool
+deriveCountable ''Char
+-- deriveCountable ''Integer
+deriveCountable ''P0
 
 -- λ> hcmap (Proxy :: Proxy Show) (mapIK (const ())) $ from $ P0 42 'z'
 -- SOP (Z (K () :* K () :* Nil))
@@ -157,10 +176,6 @@ class Bla a where
 
 -- gshow :: (AllF (All Show) (Code a), Generic a) => a -> [String]
 -- gshow = hcollapse . hcmap (Proxy :: Proxy Show) (mapIK show) . from
-
-
-
-
 
 
 --

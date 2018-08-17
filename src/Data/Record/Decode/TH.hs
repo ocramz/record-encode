@@ -1,13 +1,27 @@
 {-# language TemplateHaskell #-}
-module Data.Record.Decode.TH where
+module Data.Record.Decode.TH --
+  -- (Countable(..), deriveCountable)
+  where
 
 import Control.Monad (foldM)
 
 import Language.Haskell.TH -- (Q(..), Info(..), Name(..), reify, lookupTypeName, runQ)
 import Language.Haskell.TH.Syntax -- (Dec(..), Type(..), dataToExpQ, Quasi(..))
+import Language.Haskell.TH.Quote (QuasiQuoter(..))
 
 import Data.Data
 -- import Data.Typeable (Typeable(..), cast)
+
+-- countC :: Name -> Q Exp
+-- countC name = do
+--   TyConI (DataD _ _ _ _ cons' _) <- reify name
+--   foldr addE [| 0 |] $ f <$> cons'   
+--   where
+--     f (NormalC _ ts) = handleCon (snd <$> ts)
+--     f (RecC    _ ts) = handleCon (thd <$> ts)
+--     f _              = fail "unsupported data type"
+--     addE x y     = [| $x + $y |]
+--     thd (_,_,x)  = x    
 
 -- | Count the number of distinct values that a type can have
 class Countable a where
@@ -53,3 +67,17 @@ deriveCountable name = do
   if hasEnum && hasBounded
     then deriveCountableSimple    name
     else deriveCountableComposite name
+
+
+-- | experiments with quasiquotation
+
+dataQ :: Data a => a -> Q Exp
+dataQ = dataToExpQ cast
+
+bla :: QuasiQuoter
+bla = QuasiQuoter {
+  quoteExp = \str -> dataQ str -- undefined
+  , quotePat = error "Usage as a parttern is not supported"
+  , quoteType = error "Usage as a type is not supported"
+  , quoteDec  = error "Usage as a declaration is not supported"  
+                  }

@@ -7,6 +7,7 @@ module Data.Record.Encode.Generics where
 import GHC.Generics
 
 import qualified Data.Vector as V
+import qualified Data.Vector.Generic as VG
 
 
 
@@ -29,7 +30,11 @@ class GEncode i o x where
 
 
 
+class VG.Vector v x => GEncode' i v x where
+  gencode' :: i x -> Maybe (v Int)
 
+
+  
 
 
 

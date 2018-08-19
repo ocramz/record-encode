@@ -20,9 +20,10 @@ Initially, it was relying on Template Haskell to analyze /types/, using the the 
 module Data.Record.Encode (
   -- * One-hot encoding
     encodeOneHot
-  , G
-  -- -- ** Typeclasses
-  -- , GVariants(..)
+  -- ** Types and Utilities
+    , OneHot(..), compareOH, oneHotV
+  -- * Generics-related
+    , G
   ) where
 
 import qualified GHC.Generics as G
@@ -59,20 +60,33 @@ type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 --
 -- >>> encodeOneHot B
 -- [0,1,0]
-encodeOneHot :: forall a . G a => a -> V.Vector Int
-encodeOneHot x = oneHot len i where
+encodeOneHot :: forall a . G a => a -> OneHot
+encodeOneHot x = OH len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
   i = gindex $ from x
 
 -- | Create a one-hot vector
-oneHot :: Num a =>
-          Int  -- ^ Vector length
-       -> Int  -- ^ Index of "1" entry
-       -> V.Vector a
-oneHot n i = V.create $ do
+oneHotV :: Num a =>
+           OneHot
+        -> V.Vector a
+oneHotV (OH n i) = V.create $ do
   vm <- VM.replicate n 0
   VM.write vm i 1
   return vm
+
+
+
+-- | A one-hot encoding is a d-dimensional vector having a single component equal to 1 and all others equal to 0.
+data OneHot = OH {
+  oDim :: !Int -- ^ Dimension of ambient space (i.e. number of categories)
+  , oIx :: !Int  -- ^ Index of nonzero entry
+  } deriving (Eq, Show)
+
+compareOH :: OneHot -> OneHot -> Maybe Ordering
+compareOH (OH d1 i1) (OH d2 i2)
+  | d1 /= d2 = Nothing
+  | otherwise = Just (compare i1 i2)
+
 
 -- class Encode i d where
 --   -- type ETy d :: *

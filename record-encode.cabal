@@ -1,5 +1,5 @@
 name:                record-encode
-version:             0.1.0.1
+version:             0.2
 synopsis:            Generic encoding of records
 description:         Generic encoding of records. It currently provides a single, polymorphic function to encode sum types (i.e. categorical variables) as one-hot vectors.
 homepage:            https://github.com/ocramz/record-encode

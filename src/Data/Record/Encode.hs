@@ -37,8 +37,11 @@ import Data.Record.Encode.Generics
 
 
 
-data X a = A | B a | C | D | E | F deriving G.Generic
-instance Generic (X a)
+-- data X a = A | B a | C | D | E | F deriving G.Generic
+-- instance Generic (X a)
+
+data X = A | B | C deriving (G.Generic)
+instance Generic X
 
 -- | Constraints necessary to 'encodeOneHot' a value.
 --
@@ -59,7 +62,7 @@ type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 -- >>> instance SOP.Generic X
 --
 -- >>> encodeOneHot B
--- [0,1,0]
+-- OH {oDim = 3, oIx = 1}
 encodeOneHot :: forall a . G a => a -> OneHot
 encodeOneHot x = OH len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)

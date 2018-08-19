@@ -23,7 +23,7 @@ Analyzing datasets that have one or more categorical variables (that is, values 
 
 ```
     > encodeOneHot B
-    [0,1,0]
+    OH {oDim = 3, oIx = 1}
 ```
 
 

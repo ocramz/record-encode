@@ -1,5 +1,43 @@
 {-# language FlexibleContexts #-}
 {-# language ScopedTypeVariables #-}
+
+{-# language DeriveGeneric, TemplateHaskell #-}
+
+{-|
+This library provides generic machinery to encode values of some algebraic type as points in a corresponding Euclidean vector space.
+
+Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here addresses precisely that.
+
+
+= Usage example
+
+>>> :set -XDeriveGeneric
+>>> :set -XTemplateHaskell 
+
+@
+import GHC.Generics
+import Data.Record.Encode
+
+data X = A | B | C deriving (Generic)
+'deriveCountable' ''X
+@
+
+>>> 'encodeOneHot' B
+[0,1,0]
+
+
+== Internals
+
+Template Haskell is used to analyze /types/, whereas "generics" are used to analyze /values/.
+
+* To analyze a type we'll use the instance generation machinery explained here:
+
+https://markkarpov.com/tutorial/th.html#example-1-instance-generation
+
+* To analyze a value, we'll require its type to have a GHC.Generics.Generic instance, and then operate on the generic representation.
+
+
+-}
 module Data.Record.Encode (encodeOneHot, GIndex(..), Countable(..), deriveCountable) where
 
 import qualified GHC.Generics as G
@@ -11,24 +49,13 @@ import qualified Data.Vector.Mutable as VM
 import Data.Record.Decode.TH
 import Data.Record.Encode.Generics
 
+data X = A | B | C deriving G.Generic
+deriveCountable ''X
 
 
-{-|
-
-Template Haskell is used to analyze /types/, whereas "generics" are used to analyze /values/.
-
-The above distinction is fundamental; for example,
-
-* To analyze a type we'll use machinery similar to this:
-
-https://markkarpov.com/tutorial/th.html#example-1-instance-generation
-
-* To analyze a value, we'll require its type to have both a GHC.Generics.Generic instance and a Generics.SOP.Generic one (from 'generics-sop'), and then operate on the generic representation.
-
--}
-
-
-
+-- | Computes the one-hot encoding of a value of a sum type.
+--
+-- The type must be an instance of 'Generic' (for computing its nonzero index) and 'Countable' (for computing the number of constructors in the type, via TH).
 encodeOneHot :: forall p . (GIndex (G.Rep p), G.Generic p, Countable p) => p -> V.Vector Int
 encodeOneHot x = oneHot len i where
   len = fromIntegral $ count (Proxy :: Proxy p)

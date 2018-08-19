@@ -8,12 +8,12 @@ import GHC.Generics
 -- | Compute the structural index of a value of a sum type via its Generic representation
 -- e.g.:
 -- 
--- λ> data S0 = Sa | Sb | Sc deriving (Eq, Show, Generic)  
+-- >>> data S0 = Sa | Sb | Sc deriving (Eq, Show, Generic)  
 -- 
--- λ> gindex $ from Sb
+-- >>> gindex $ from Sb
 -- 1
 -- 
--- λ> gindex $ from Sc
+-- >>> gindex $ from Sc
 -- 2
 class GIndex f where
   gindex :: f p -> Int

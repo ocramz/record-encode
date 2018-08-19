@@ -9,13 +9,12 @@ Analyzing datasets that have one or more categorical variables (== values having
 # Usage example
 
 ```
-    {-# language DeriveGeneric, TemplateHaskell -#}
+    {-# language DeriveGeneric -#}
 
     import GHC.Generics
     import Data.Record.Encode
 
     data X = A | B | C deriving (Generic)
-    deriveCountable ''X
 ```
 
 ```
@@ -24,12 +23,3 @@ Analyzing datasets that have one or more categorical variables (== values having
 ```
 
 
-## Internals
-
-Template Haskell is used to analyze /types/, whereas "generics" are used to analyze /values/.
-
-* To analyze a type we'll use the instance generation machinery explained here:
-
-https://markkarpov.com/tutorial/th.html#example-1-instance-generation
-
-* To analyze a value, we'll require its type to have a GHC.Generics.Generic instance, and then operate on the generic representation.

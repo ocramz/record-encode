@@ -5,6 +5,7 @@ import Test.Hspec
 -- import Test.Hspec.QuickCheck
 
 import qualified GHC.Generics as G
+import Generics.SOP 
 
 import qualified Data.Vector as V
 
@@ -12,7 +13,8 @@ import Data.Record.Encode
 
 
 data X = Xa | Xb | Xc deriving (Eq, Show, G.Generic)
--- deriveCountable ''X
+instance Generic X
+
 
 
 

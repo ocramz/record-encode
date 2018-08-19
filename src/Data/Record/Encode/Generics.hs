@@ -1,54 +1,46 @@
 {-# language TypeOperators #-}
+{-# language DeriveGeneric #-}
 -- {-# language GADTs, DataKinds, PolyKinds, FlexibleInstances, FlexibleContexts #-}
 {-# language KindSignatures, FlexibleInstances, FlexibleContexts, ScopedTypeVariables #-}
-module Data.Record.Encode.Generics (GIndex(..), GVariants(..), gnconstructors) where
+module Data.Record.Encode.Generics (
+    gindex
+  , GVariants(..)
+  , gnconstructors
+  ) where
 
-import GHC.Generics
+import qualified GHC.Generics as G
 import Data.Proxy
+
+import Generics.SOP hiding (Proxy)
+import Generics.SOP.NS
 
 -- | Compute the structural index of a value of a sum type via its Generic representation
 -- e.g.:
 -- 
--- >>> data S0 = Sa | Sb | Sc deriving (Eq, Show, Generic)  
+-- >>> data S = Sa | Sb | Sc deriving (Eq, Show, G.Generic)
+-- >>> instance Generic S
 -- 
 -- >>> gindex $ from Sb
 -- 1
--- 
--- >>> gindex $ from Sc
--- 2
-class GIndex f where
-  gindex :: f p -> Int
-
-instance GIndex (K1 a k) where
-  gindex _ = 0
-
-instance (GIndex l, GIndex r) => GIndex (l :+: r) where
-  gindex x = case x of
-    L1 l -> gindex l
-    R1 r -> 1 + gindex r
-
-instance GIndex _i => GIndex (M1 _a _b _i) where
-  gindex (M1 x) = gindex x
-
-instance GIndex U1 where
-  gindex _ = 0
+gindex :: SOP f xs -> Int
+gindex = index_NS . unSOP 
 
 
 -- | Counts the number of outermost constructors ("variants" of a type)
 class GVariants (f :: * -> *) where
   vars :: proxy f -> Int
 
-instance GVariants (M1 C m f) where { vars _ = 1 }
+instance GVariants (G.M1 G.C m f) where { vars _ = 1 }
 
-instance GVariants V1 where { vars _ = 0 }
+instance GVariants G.V1 where { vars _ = 0 }
 
-instance GVariants f => GVariants (M1 D m f) where { vars _ = vars (Proxy :: Proxy f) }
+instance GVariants f => GVariants (G.M1 G.D m f) where { vars _ = vars (Proxy :: Proxy f) }
 
-instance (GVariants f, GVariants g) => GVariants (f :+: g) where { vars _ = vars (Proxy :: Proxy f) + vars (Proxy :: Proxy g) }
+instance (GVariants f, GVariants g) => GVariants (f G.:+: g) where { vars _ = vars (Proxy :: Proxy f) + vars (Proxy :: Proxy g) }
 
 -- | Counts the number of outermost constructors
-gnconstructors :: forall a . (Generic a, GVariants (Rep a)) => Proxy a -> Int
-gnconstructors _ = vars (Proxy :: Proxy (Rep a))
+gnconstructors :: forall a . (G.Generic a, GVariants (G.Rep a)) => Proxy a -> Int
+gnconstructors _ = vars (Proxy :: Proxy (G.Rep a))
 
 
 -- [17:21] <mniip> @let class Variants f where { variants :: proxy f -> Int }; instance Variants (M1 C m f) where { variants _ = 1 }; instance Variants V1 where { variants _ = 0 }; instance Variants f => Variants (M1 D m f) where { variants _ = variants (Proxy :: Proxy f) }; instance (Variants f, Variants g) => Variants (f :+: g) where { variants _ = variants (Proxy :: Proxy f) + variants (Proxy :: Proxy g) }

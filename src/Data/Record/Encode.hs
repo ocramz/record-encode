@@ -1,6 +1,7 @@
 {-# language FlexibleContexts #-}
 {-# language ScopedTypeVariables #-}
--- {-# language DeriveGeneric #-}
+
+{-# language DeriveGeneric #-}
 
 {-|
 This library provides generic machinery (via GHC.Generics) to encode values of some algebraic type as points in a corresponding Euclidean vector space.
@@ -20,10 +21,11 @@ module Data.Record.Encode (
   -- * One-hot encoding
     encodeOneHot
   -- ** Typeclasses
-  , GIndex(..), GVariants(..)
+  , GVariants(..)
   ) where
 
-import GHC.Generics 
+import qualified GHC.Generics as G
+import Generics.SOP hiding (Proxy)
 import Data.Proxy
 
 import qualified Data.Vector as V
@@ -31,7 +33,10 @@ import qualified Data.Vector.Mutable as VM
 
 import Data.Record.Encode.Generics
 
--- data X = A | B | C deriving Generic
+
+
+data X a = A | B a | C | D | E | F deriving G.Generic
+instance Generic (X a)
 
 
 -- | Computes the one-hot encoding of a value of a sum type.
@@ -40,14 +45,16 @@ import Data.Record.Encode.Generics
 --
 -- >>> :set -XDeriveGeneric
 --
--- >>> import GHC.Generics
+-- >>> import qualified GHC.Generics as G
+-- >>> import qualified Generics.SOP as SOP
 -- >>> import Data.Record.Encode
 --
--- >>> data X = A | B | C deriving (Generic)
+-- >>> data X = A | B | C deriving (G.Generic)
+-- >>> instance SOP.Generic X
 --
 -- >>> encodeOneHot B
 -- [0,1,0]
-encodeOneHot :: forall a . (GIndex (Rep a), GVariants (Rep a), Generic a) => a -> V.Vector Int
+encodeOneHot :: forall a . (GVariants (G.Rep a), G.Generic a, Generic a) => a -> V.Vector Int
 encodeOneHot x = oneHot len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
   i = gindex $ from x
@@ -75,3 +82,10 @@ oneHot n i = V.create $ do
   
   
 
+
+{- |
+
+from A
+  :: (C1 _ U1 :+: (C1 _ U1 +: C1 _ U1)) :+: (C1 _ U1 :+: (C1 _ U1 :+: C1 _ U1))
+
+-}

@@ -21,6 +21,7 @@ library
   exposed-modules:     Data.Record.Encode
   other-modules:       Data.Record.Encode.Generics
   build-depends:       base >= 4.7 && < 5
+                     , generics-sop
                      , vector
 
 
@@ -33,6 +34,7 @@ test-suite spec
   other-modules:     LibSpec
   build-depends:       base
                      , record-encode
+                     , generics-sop
                      , hspec
                      , QuickCheck
                      , vector

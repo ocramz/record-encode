@@ -65,15 +65,15 @@ deriveCountable name = do
 
 
 
--- | experiments with quasiquotation
+-- -- | experiments with quasiquotation
 
-dataQ :: Data a => a -> Q Exp
-dataQ = dataToExpQ cast
+-- dataQ :: Data a => a -> Q Exp
+-- dataQ = dataToExpQ cast
 
-bla :: QuasiQuoter
-bla = QuasiQuoter {
-  quoteExp = \str -> dataQ str -- undefined
-  , quotePat = error "Usage as a pattern is not supported"
-  , quoteType = error "Usage as a type is not supported"
-  , quoteDec  = error "Usage as a declaration is not supported"  
-                  }
+-- bla :: QuasiQuoter
+-- bla = QuasiQuoter {
+--   quoteExp = \str -> dataQ str -- undefined
+--   , quotePat = error "Usage as a pattern is not supported"
+--   , quoteType = error "Usage as a type is not supported"
+--   , quoteDec  = error "Usage as a declaration is not supported"  
+--                   }

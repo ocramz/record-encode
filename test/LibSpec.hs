@@ -1,10 +1,8 @@
-{-# language DeriveGeneric, TemplateHaskell #-}
+{-# language DeriveGeneric #-}
 module LibSpec where
 
 import Test.Hspec
-import Test.Hspec.QuickCheck
-
-import Data.Proxy
+-- import Test.Hspec.QuickCheck
 
 import qualified GHC.Generics as G
 
@@ -14,7 +12,7 @@ import Data.Record.Encode
 
 
 data X = Xa | Xb | Xc deriving (Eq, Show, G.Generic)
-deriveCountable ''X
+-- deriveCountable ''X
 
 
 
@@ -23,9 +21,7 @@ main = hspec spec
 
 spec :: Spec
 spec =
-  describe "Data.Record.Decode.TH" $ do
-    it "counts constructors of Countable types" $ do
-      count (Proxy :: Proxy X) `shouldBe` 3
+  describe "Data.Record.Encode" $ do
     it "creates a one-hot encoded vector from a sum type" $ do
       V.length (encodeOneHot Xb) `shouldBe` 3
       

@@ -1,10 +1,9 @@
 {-# language FlexibleContexts #-}
 {-# language ScopedTypeVariables #-}
-
-{-# language DeriveGeneric, TemplateHaskell #-}
+-- {-# language DeriveGeneric #-}
 
 {-|
-This library provides generic machinery to encode values of some algebraic type as points in a corresponding Euclidean vector space.
+This library provides generic machinery (via 'GHC.Generics') to encode values of some algebraic type as points in a corresponding Euclidean vector space.
 
 Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
 
@@ -12,14 +11,12 @@ Analyzing datasets that have one or more categorical variables (== values having
 = Usage example
 
 >>> :set -XDeriveGeneric
->>> :set -XTemplateHaskell 
 
 @
 import GHC.Generics
 import Data.Record.Encode
 
 data X = A | B | C deriving (Generic)
-'deriveCountable' ''X
 @
 
 >>> encodeOneHot B
@@ -29,23 +26,17 @@ data X = A | B | C deriving (Generic)
 
 == Internals
 
-Template Haskell is used to analyze /types/, whereas "generics" are used to analyze /values/.
+This library makes use of generic programming to analyze both values and types (see the 'Data.Record.Encode.Generics' module).
 
-* To analyze a type we'll use the instance generation machinery explained here:
-
-https://markkarpov.com/tutorial/th.html#example-1-instance-generation
-
-* To analyze a value, we'll require its type to have a GHC.Generics.Generic instance, and then operate on the generic representation.
+Initially, it was relying on Template Haskell to analyze /types/, using the the instance generation machinery explained here: <https://markkarpov.com/tutorial/th.html#example-1-instance-generation>
 
 
 -}
 module Data.Record.Encode (
   -- * One-hot encoding
     encodeOneHot
-  -- ** Template Haskell functionality
-  , deriveCountable
   -- ** Typeclasses
-  , GIndex(..), Countable(..)
+  , GIndex(..), GVariants(..)
   ) where
 
 import GHC.Generics 
@@ -54,21 +45,18 @@ import Data.Proxy
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
-import Data.Record.Decode.TH
 import Data.Record.Encode.Generics
 
-data X = A | B | C deriving Generic
-deriveCountable ''X
+-- data X = A | B | C deriving Generic
 
 
 -- | Computes the one-hot encoding of a value of a sum type.
 --
--- The type must be an instance of 'Generic' (for computing its nonzero index) and 'Countable' (for computing the number of constructors in the type, via TH).
-encodeOneHot :: forall p . (GIndex (Rep p), Generic p, Countable p) => p -> V.Vector Int
+-- The type of the input value must only be an instance of 'Generic'.
+encodeOneHot :: forall a . (GIndex (Rep a), GVariants (Rep a), Generic a) => a -> V.Vector Int
 encodeOneHot x = oneHot len i where
-  len = fromIntegral $ count (Proxy :: Proxy p)
+  len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
   i = gindex $ from x
-
 
 -- | Create a one-hot vector
 oneHot :: Num a =>

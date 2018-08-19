@@ -12,7 +12,49 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Generic as VG
 
 
+-- | Compute the structural index of a value of a sum type via its Generic representation
+-- e.g.
+-- 
+-- λ> gindex $ from Sb
+-- 1
+-- 
+-- λ> gindex $ from Sc
+-- 2
 
+class GIndex f where
+  gindex :: f p -> Int
+
+instance GIndex (K1 a k) where
+  gindex _ = 0
+
+instance (GIndex l, GIndex r) => GIndex (l :+: r) where
+  gindex x = case x of
+    L1 l -> gindex l
+    R1 r -> 1 + gindex r
+
+instance GIndex _i => GIndex (M1 _a _b _i) where
+  gindex (M1 x) = gindex x
+
+instance GIndex U1 where
+  gindex _ = 0
+
+
+-- | toy data
+data S0 = Sa | Sb | Sc deriving (Eq, Show, Generic)  
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- | 
 
 class GEncode i o where
   gencode :: i x -> Maybe (o x)

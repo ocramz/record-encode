@@ -1,7 +1,5 @@
 {-# language TemplateHaskell #-}
-module Data.Record.Decode.TH --
-  -- (Countable(..), deriveCountable)
-  where
+module Data.Record.Decode.TH (Countable(..), deriveCountable) where
 
 import Control.Monad (foldM)
 
@@ -13,37 +11,6 @@ import Data.Data
 -- import Data.Typeable (Typeable(..), cast)
 
 
-
-class Countable' t where
-  count' :: Proxy t -> Int
-
--- deriveCount' n = do
---   TyConI (DataD _ _ _ _ cons' _) <- reify n
---   [d|
---      instance Countable' $(conT n) where
---        count' Proxy = $(sumCon cons')
---    |]  
-
-
--- sumCon ts = foldr sumE [| 0 |] ts where
---     sumE x y     = [| $x + $y |]
-
-sumCon ts = foldr sumE [| 0 |] (countTypeE <$> ts) where
-    countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
-    sumE x y     = [| $x + $y |]    
-
-
-
--- countC :: Name -> Q Exp
--- countC name = do
---   TyConI (DataD _ _ _ _ cons' _) <- reify name
---   foldr addE [| 0 |] $ f <$> cons'   
---   where
---     f (NormalC _ ts) = handleCon (snd <$> ts)
---     f (RecC    _ ts) = handleCon (thd <$> ts)
---     f _              = fail "unsupported data type"
---     addE x y     = [| $x + $y |]
---     thd (_,_,x)  = x    
 
 -- | Count the number of distinct values that a type can have
 class Countable a where
@@ -93,6 +60,10 @@ deriveCountable name = do
   if hasEnum && hasBounded
     then deriveCountableSimple    name
     else deriveCountableComposite name
+
+
+
+
 
 
 -- | experiments with quasiquotation

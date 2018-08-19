@@ -7,6 +7,8 @@
 {-# language QuasiQuotes #-}
 
 {-# language TemplateHaskell #-}
+
+{-# language ScopedTypeVariables #-}
 -- {-# LANGUAGE BangPatterns, RankNTypes #-}
 module Data.Record.Encode where
 
@@ -28,7 +30,7 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
 import Data.Record.Decode.TH
-
+import Data.Record.Encode.Generics
 
 
 
@@ -49,8 +51,6 @@ https://markkarpov.com/tutorial/th.html#example-1-instance-generation
 -}
 
 
-
-
 -- λ> from (42, 'z')
 -- SOP (Z (I 42 :* I 'z' :* Nil))
 
@@ -64,45 +64,8 @@ https://markkarpov.com/tutorial/th.html#example-1-instance-generation
 -- instance Generic X 
 
 
--- deriveCountable ''(NS I '[])
-
-data P0 = P0 Bool Char deriving (Eq, Show, G.Generic)
-instance Generic P0
-
-deriveCountable ''Bool
-deriveCountable ''Char
--- deriveCountable ''Integer
-deriveCountable ''P0
-
--- λ> hcmap (Proxy :: Proxy Show) (mapIK (const ())) $ from $ P0 42 'z'
--- SOP (Z (K () :* K () :* Nil))
 
 
-data Fx = Ax | Bx | Cx deriving (Eq, Show, Enum, G.Generic)
-instance Generic Fx
-
-data Fy a = Ay a | By | Cy deriving (Eq, Show, G.Generic)
-instance Generic (Fy a)
-
-data Gx = Ax' | Bx' | Cx' deriving (Eq, Show, Enum, G.Generic)
-instance Generic Gx
-
--- | a Product-Of-Sums
-data P1 a = P1 Fx (Fy a) deriving (Eq, Show, G.Generic)
-instance Generic (P1 a)
-
-p10 :: P1 Integer
-p10 = P1 Ax (Ay 42)
-
-gp10 :: SOP I '[ '[Fx, Fy Integer] ]
-gp10 = from p10
-
--- λ> from $ P1 Ax (Ay 42)
--- SOP (Z (I Ax :* I (Ay 42) :* Nil))
-
-
-data P2 = P2 Fx Fx deriving (Eq, Show, G.Generic)
-instance Generic P2
 
 -- | 'gfromEnum' returns the index of each constructor, encoded as an integer.
 -- λ> gfromEnum $ P2 Ax Bx
@@ -119,6 +82,26 @@ gfromEnum = hcollapse . hcmap (Proxy :: Proxy Enum) (mapIK fromEnum) . from
 
 -- f ~> g :: forall a . f a -> g a 
 
+
+-- mkOH :: (GIndex f, Countable (f p)) => f p -> V.Vector Integer
+-- mkOH x = oneHot l i 
+--   where
+--     i = gindex x
+--     l = fromIntegral $ count (Proxy :: Proxy p) -- (Proxy :: Proxy Int)
+
+-- lenp :: Countable p => p -> Int
+-- lenp _ = fromIntegral $ count (Proxy :: Proxy p)
+
+
+data X = Xa | Xb | Xc deriving (Eq, Show, G.Generic)
+deriveCountable ''X
+
+mkOH :: forall p . (GIndex (G.Rep p), G.Generic p, Countable p) => p -> V.Vector Int
+mkOH x = oneHot len i where
+  len = fromIntegral $ count (Proxy :: Proxy p)
+  i = gindex $ G.from x
+
+
 -- | Create a one-hot vector
 oneHot :: Num a =>
           Int  -- ^ Vector length
@@ -129,16 +112,16 @@ oneHot n i = V.create $ do
   VM.write vm i 1
   return vm
 
-class Encode i d where
-  -- type ETy d :: *
-  encode :: d -> V.Vector i
-  -- type EIx d :: *  
-  -- encode :: d -> V.Vector (ETy d)
-  -- encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
+-- class Encode i d where
+--   -- type ETy d :: *
+--   encode :: d -> V.Vector i
+--   -- type EIx d :: *  
+--   -- encode :: d -> V.Vector (ETy d)
+--   -- encodeSparse :: d -> V.Vector (EIx d, EIx d, ETy d)
 
--- | Some pointwise decision (e.g. maximum a posteriori) from a mixture of labels to a single value
-class Decode i d where
-  decode :: V.Vector i -> d
+-- -- | Some pointwise decision (e.g. maximum a posteriori) from a mixture of labels to a single value
+-- class Decode i d where
+--   decode :: V.Vector i -> d
   
   
 
@@ -177,6 +160,45 @@ class Bla a where
 --
 
 
+
+data P0 = P0 Bool Char deriving (Eq, Show, G.Generic)
+instance Generic P0
+
+deriveCountable ''Bool
+deriveCountable ''Char
+-- deriveCountable ''Integer
+deriveCountable ''P0
+
+
+-- λ> hcmap (Proxy :: Proxy Show) (mapIK (const ())) $ from $ P0 42 'z'
+-- SOP (Z (K () :* K () :* Nil))
+
+
+data Fx = Ax | Bx | Cx deriving (Eq, Show, Enum, G.Generic)
+instance Generic Fx
+
+data Fy a = Ay a | By | Cy deriving (Eq, Show, G.Generic)
+instance Generic (Fy a)
+
+data Gx = Ax' | Bx' | Cx' deriving (Eq, Show, Enum, G.Generic)
+instance Generic Gx
+
+-- | a Product-Of-Sums
+data P1 a = P1 Fx (Fy a) deriving (Eq, Show, G.Generic)
+instance Generic (P1 a)
+
+p10 :: P1 Integer
+p10 = P1 Ax (Ay 42)
+
+gp10 :: SOP I '[ '[Fx, Fy Integer] ]
+gp10 = from p10
+
+-- λ> from $ P1 Ax (Ay 42)
+-- SOP (Z (I Ax :* I (Ay 42) :* Nil))
+
+
+data P2 = P2 Fx Fx deriving (Eq, Show, G.Generic)
+instance Generic P2
 
 
 

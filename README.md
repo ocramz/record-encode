@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ocramz/record-encode.png)](https://travis-ci.org/ocramz/record-encode)
 
-This library provides generic machinery to encode values of some algebraic type as points in a corresponding Euclidean vector space.
+This library provides generic machinery to encode values of some algebraic type as points in a vector space.
 
 Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the `encodeOneHot` function provided here does precisely that.
 
@@ -11,10 +11,13 @@ Analyzing datasets that have one or more categorical variables (== values having
 ```
     {-# language DeriveGeneric -#}
 
-    import GHC.Generics
+    import qualified GHC.Generics as G
+    import qualified Generics.SOP as SOP
+    
     import Data.Record.Encode
 
-    data X = A | B | C deriving (Generic)
+    data X = A | B | C deriving (G.Generic)
+    instance SOP.Generic X
 ```
 
 ```

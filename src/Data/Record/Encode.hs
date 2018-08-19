@@ -4,7 +4,7 @@
 {-# language DeriveGeneric #-}
 
 {-|
-This library provides generic machinery (via GHC.Generics) to encode values of some algebraic type as points in a corresponding Euclidean vector space.
+This library provides generic machinery (via GHC.Generics) to encode values of some algebraic type as points in a vector space.
 
 Processing datasets that have one or more categorical variables (which in other words are values of a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
 

@@ -21,6 +21,7 @@ library
   exposed-modules:     Data.Record.Encode
                        Data.Record.Encode.Generics
   other-modules:       Data.Record.Decode.TH
+                       Data.Record.Encode.Vinyl
   build-depends:       base >= 4.7 && < 5
                      , generics-sop
                      -- , primitive

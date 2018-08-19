@@ -12,6 +12,28 @@ import Language.Haskell.TH.Quote (QuasiQuoter(..))
 import Data.Data
 -- import Data.Typeable (Typeable(..), cast)
 
+
+
+class Countable' t where
+  count' :: Proxy t -> Int
+
+-- deriveCount' n = do
+--   TyConI (DataD _ _ _ _ cons' _) <- reify n
+--   [d|
+--      instance Countable' $(conT n) where
+--        count' Proxy = $(sumCon cons')
+--    |]  
+
+
+-- sumCon ts = foldr sumE [| 0 |] ts where
+--     sumE x y     = [| $x + $y |]
+
+sumCon ts = foldr sumE [| 0 |] (countTypeE <$> ts) where
+    countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
+    sumE x y     = [| $x + $y |]    
+
+
+
 -- countC :: Name -> Q Exp
 -- countC name = do
 --   TyConI (DataD _ _ _ _ cons' _) <- reify name
@@ -43,20 +65,24 @@ deriveCountableComposite name = do
   TyConI (DataD _ _ _ _ cons' _) <- reify name
   [d|
      instance Countable $(conT name) where
-       count Proxy = $(foldr addE [| 0 |] $ f <$> cons')
+       count Proxy = $(foldr addE [| 0 |] $ unpackCon <$> cons')
    |]
   where
-    f (NormalC _ ts) = handleCon (snd <$> ts)
-    f (RecC    _ ts) = handleCon (thd <$> ts)
-    f _              = fail "unsupported data type"
     addE x y     = [| $x + $y |]
+
+unpackCon :: Con -> Q Exp
+unpackCon (NormalC _ ts) = handleCon (snd <$> ts)
+unpackCon (RecC    _ ts) = handleCon (thd <$> ts)
+  where
     thd (_,_,x)  = x
+unpackCon _ = fail "unsupported data type"
 
 
 handleCon :: (Foldable t, Functor t) => t Type -> Q Exp
 handleCon ts = foldr mulE [| 1 |] (countTypeE <$> ts) where
     countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
     mulE x y     = [| $x * $y |]
+
 
 
 deriveCountable :: Name -> Q [Dec]
@@ -77,7 +103,7 @@ dataQ = dataToExpQ cast
 bla :: QuasiQuoter
 bla = QuasiQuoter {
   quoteExp = \str -> dataQ str -- undefined
-  , quotePat = error "Usage as a parttern is not supported"
+  , quotePat = error "Usage as a pattern is not supported"
   , quoteType = error "Usage as a type is not supported"
   , quoteDec  = error "Usage as a declaration is not supported"  
                   }

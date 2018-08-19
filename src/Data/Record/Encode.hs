@@ -30,11 +30,7 @@ import qualified Data.Vector.Mutable as VM
 import Data.Record.Decode.TH
 
 
--- -- moo :: Q Exp
--- -- moo = [| \x -> x + 1 |]
 
--- data Moo a = Moo a deriving (Show, G.Generic)
--- moo = [| Moo |]
 
 
 
@@ -180,4 +176,16 @@ class Bla a where
 
 --
 
+
+
+
+
+
+-- sandbox
+
+moo :: Q [Dec]
+moo = [d| mooQ x = x + 1 |]
+
+-- data Moo a = Moo a deriving (Show, G.Generic)
+-- moo = [| Moo |]
 

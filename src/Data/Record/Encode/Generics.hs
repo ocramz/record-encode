@@ -13,24 +13,6 @@ import qualified Data.Vector.Generic as VG
 
 
 
--- data Rec :: (u -> *) -> [u] -> * where
---   RNil :: Rec f '[]
---   (:&) :: !(f r) -> !(Rec f rs) -> Rec f (r ': rs)
-
--- instance Generic (Rec f '[]) where
---   type Rep (Rec f '[]) = U1
---   from RNil = U1
---   to U1 = RNil
-  
--- instance (Generic (Rec f rs), Rep (Rec f rs) ~ Rec0 (Rec f rs)) => Generic (Rec f (r ': rs)) where
---   type Rep (Rec f (r ': rs)) = Rec0 (f r) :*: Rec0 (Rec f rs)
---   from (x :& xs) = K1 x :*: from xs
---   to (K1 x :*: xs) = x :& to xs
-
-
-
-
-
 
 class GEncode i o where
   gencode :: i x -> Maybe (o x)
@@ -59,12 +41,11 @@ class Encode d where
   type ETy d :: *
   type ETy d = OneHot -- (Int, Int)
   -- encode :: d -> V.Vector (ETy d)
-  encode :: d -> ETy d
+  encode :: d x -> ETy d
 
 -- instance Encode
 
--- encode_ xss = go xss 0 where
---   go (x:xs) i 
+
   
 
 

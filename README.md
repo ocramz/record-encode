@@ -23,3 +23,7 @@ Analyzing datasets that have one or more categorical variables (== values having
 ```
 
 
+
+# Acknowledgements
+
+Gagandeep Bhatia (@gagandeepb) for his GSoC '18 work on `Frames-beam`, Mark Karpov (@mrkkrp) for his Template Haskell tutorial, Anthony Cowley (@acowley) for `vinyl` and `Frames`, @mniip on Freenode #haskell for helping me better understand what can be done with generic programming.

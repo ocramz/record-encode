@@ -46,7 +46,7 @@ type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 
 -- | Computes the one-hot encoding of a value of a sum type.
 --
--- The type of the input value must be an instance of 'Generic' (from GHC.Generics) /and/ of 'Generic' (from the `generics-sop` library).
+-- The type of the input value must be an instance of 'GHC.Generics.Generic' (from GHC.Generics) /and/ of 'Generics.SOP.Generic' (from the `generics-sop` library).
 --
 -- >>> :set -XDeriveGeneric
 --

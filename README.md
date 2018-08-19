@@ -1,6 +1,7 @@
 # record-encode
 
 [![Build Status](https://travis-ci.org/ocramz/record-encode.png)](https://travis-ci.org/ocramz/record-encode)
+[![Hackage](https://img.shields.io/hackage/v/record-encode.svg)](https://hackage.haskell.org/package/record-encode)
 
 This library provides generic machinery to encode values of some algebraic type as points in a vector space.
 

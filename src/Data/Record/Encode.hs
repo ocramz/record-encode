@@ -6,7 +6,7 @@
 {-|
 This library provides generic machinery to encode values of some algebraic type as points in a corresponding Euclidean vector space.
 
-Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here addresses precisely that.
+Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
 
 
 = Usage example

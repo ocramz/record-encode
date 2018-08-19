@@ -22,8 +22,9 @@ data X = A | B | C deriving (Generic)
 'deriveCountable' ''X
 @
 
->>> 'encodeOneHot' B
+>>> encodeOneHot B
 [0,1,0]
+
 
 
 == Internals

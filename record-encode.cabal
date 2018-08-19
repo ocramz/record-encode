@@ -1,7 +1,7 @@
 name:                record-encode
 version:             0.1.0.0
--- synopsis:
--- description:
+synopsis:            Generic encoding of records
+description:         Generic encoding of records. Provides a single function and two typeclasses to encode values of sum types as one-hot vectors.
 homepage:            https://github.com/ocramz/record-encode
 license:             BSD3
 license-file:        LICENSE
@@ -16,7 +16,7 @@ tested-with:         GHC == 8.4.3
 
 library
   default-language:    Haskell2010
-  ghc-options:         -Wall -ddump-splices -ddump-to-file
+  ghc-options:         -Wall 
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
   other-modules:       Data.Record.Encode.Generics

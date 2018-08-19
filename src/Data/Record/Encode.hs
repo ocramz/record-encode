@@ -3,30 +3,14 @@
 -- {-# language DeriveGeneric #-}
 
 {-|
-This library provides generic machinery (via 'GHC.Generics') to encode values of some algebraic type as points in a corresponding Euclidean vector space.
+This library provides generic machinery (via GHC.Generics) to encode values of some algebraic type as points in a corresponding Euclidean vector space.
 
-Analyzing datasets that have one or more categorical variables (== values having a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
-
-
-= Usage example
-
->>> :set -XDeriveGeneric
-
-@
-import GHC.Generics
-import Data.Record.Encode
-
-data X = A | B | C deriving (Generic)
-@
-
->>> encodeOneHot B
-[0,1,0]
-
+Processing datasets that have one or more categorical variables (which in other words are values of a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
 
 
 == Internals
 
-This library makes use of generic programming to analyze both values and types (see the 'Data.Record.Encode.Generics' module).
+This library makes use of generic programming to analyze both values and types (see the internal Data.Record.Encode.Generics module).
 
 Initially, it was relying on Template Haskell to analyze /types/, using the the instance generation machinery explained here: <https://markkarpov.com/tutorial/th.html#example-1-instance-generation>
 
@@ -53,6 +37,16 @@ import Data.Record.Encode.Generics
 -- | Computes the one-hot encoding of a value of a sum type.
 --
 -- The type of the input value must only be an instance of 'Generic'.
+--
+-- >>> :set -XDeriveGeneric
+--
+-- >>> import GHC.Generics
+-- >>> import Data.Record.Encode
+--
+-- >>> data X = A | B | C deriving (Generic)
+--
+-- >>> encodeOneHot B
+-- [0,1,0]
 encodeOneHot :: forall a . (GIndex (Rep a), GVariants (Rep a), Generic a) => a -> V.Vector Int
 encodeOneHot x = oneHot len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)

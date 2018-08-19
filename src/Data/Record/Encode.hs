@@ -39,9 +39,16 @@ https://markkarpov.com/tutorial/th.html#example-1-instance-generation
 
 
 -}
-module Data.Record.Encode (encodeOneHot, GIndex(..), Countable(..), deriveCountable) where
+module Data.Record.Encode (
+  -- * One-hot encoding
+    encodeOneHot
+  -- ** Template Haskell functionality
+  , deriveCountable
+  -- ** Typeclasses
+  , GIndex(..), Countable(..)
+  ) where
 
-import qualified GHC.Generics as G
+import GHC.Generics 
 import Data.Proxy
 
 import qualified Data.Vector as V
@@ -50,17 +57,17 @@ import qualified Data.Vector.Mutable as VM
 import Data.Record.Decode.TH
 import Data.Record.Encode.Generics
 
-data X = A | B | C deriving G.Generic
+data X = A | B | C deriving Generic
 deriveCountable ''X
 
 
 -- | Computes the one-hot encoding of a value of a sum type.
 --
 -- The type must be an instance of 'Generic' (for computing its nonzero index) and 'Countable' (for computing the number of constructors in the type, via TH).
-encodeOneHot :: forall p . (GIndex (G.Rep p), G.Generic p, Countable p) => p -> V.Vector Int
+encodeOneHot :: forall p . (GIndex (Rep p), Generic p, Countable p) => p -> V.Vector Int
 encodeOneHot x = oneHot len i where
   len = fromIntegral $ count (Proxy :: Proxy p)
-  i = gindex $ G.from x
+  i = gindex $ from x
 
 
 -- | Create a one-hot vector

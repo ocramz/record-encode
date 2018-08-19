@@ -50,8 +50,7 @@ handleCon ts = foldr mulE [| 1 |] (countTypeE <$> ts) where
     countTypeE t = [| count (Proxy :: Proxy $(return t)) |]
     mulE x y     = [| $x * $y |]
 
-
-
+-- | Generate the 'Countable' instance of the given type. If the type is both 'Enum' and 'Bounded' it uses those, otherwise it reifies the type and looks inside its metadata to compute its total number of constructors.
 deriveCountable :: Name -> Q [Dec]
 deriveCountable name = do
   let ts = [ConT name]

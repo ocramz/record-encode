@@ -14,6 +14,12 @@ import Data.Proxy
 import Generics.SOP hiding (Proxy)
 import Generics.SOP.NS
 
+
+data X a = A | B a | C | D | E | F deriving G.Generic
+instance Generic (X a)
+
+
+
 -- | Compute the structural index of a value of a sum type via its Generic representation
 -- e.g.:
 -- 
@@ -23,7 +29,7 @@ import Generics.SOP.NS
 -- >>> gindex $ from Sb
 -- 1
 gindex :: SOP f xs -> Int
-gindex = index_NS . unSOP 
+gindex = index_SOP
 
 
 -- | Counts the number of outermost constructors ("variants" of a type)

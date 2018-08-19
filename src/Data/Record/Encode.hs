@@ -1,10 +1,10 @@
 {-# language FlexibleContexts #-}
 {-# language ScopedTypeVariables #-}
-
 {-# language DeriveGeneric #-}
+{-# language ConstraintKinds #-}
 
 {-|
-This library provides generic machinery (via GHC.Generics) to encode values of some algebraic type as points in a vector space.
+This library provides generic machinery (via GHC.Generics and `generics-sop`) to encode values of some algebraic type as points in a vector space.
 
 Processing datasets that have one or more categorical variables (which in other words are values of a sum type) typically requires a series of boilerplate transformations, and the 'encodeOneHot' function provided here does precisely that.
 
@@ -20,8 +20,9 @@ Initially, it was relying on Template Haskell to analyze /types/, using the the 
 module Data.Record.Encode (
   -- * One-hot encoding
     encodeOneHot
-  -- ** Typeclasses
-  , GVariants(..)
+  , G
+  -- -- ** Typeclasses
+  -- , GVariants(..)
   ) where
 
 import qualified GHC.Generics as G
@@ -38,10 +39,14 @@ import Data.Record.Encode.Generics
 data X a = A | B a | C | D | E | F deriving G.Generic
 instance Generic (X a)
 
+-- | Constraints necessary to 'encodeOneHot' a value.
+--
+-- NB: 'GVariants' is an internal typeclass, and this constraint is automatically satisfied if the type is an instance of 'G.Generic'
+type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 
 -- | Computes the one-hot encoding of a value of a sum type.
 --
--- The type of the input value must only be an instance of 'Generic'.
+-- The type of the input value must be an instance of 'Generic' (from GHC.Generics) /and/ of 'Generic' (from the `generics-sop` library).
 --
 -- >>> :set -XDeriveGeneric
 --
@@ -54,7 +59,7 @@ instance Generic (X a)
 --
 -- >>> encodeOneHot B
 -- [0,1,0]
-encodeOneHot :: forall a . (GVariants (G.Rep a), G.Generic a, Generic a) => a -> V.Vector Int
+encodeOneHot :: forall a . G a => a -> V.Vector Int
 encodeOneHot x = oneHot len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
   i = gindex $ from x

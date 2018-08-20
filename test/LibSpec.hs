@@ -7,7 +7,7 @@ import Test.Hspec
 import qualified GHC.Generics as G
 import Generics.SOP 
 
-import qualified Data.Vector as V
+-- import qualified Data.Vector as V
 
 import Data.Record.Encode
 
@@ -25,8 +25,8 @@ spec :: Spec
 spec =
   describe "Data.Record.Encode" $ do
     it "creates a one-hot encoded vector from a sum type" $ do
-      V.length (encodeOneHot Xb) `shouldBe` 3
-      
+      oDim (encodeOneHot Xb) `shouldBe` 3
+      oIx (encodeOneHot Xb) `shouldBe` 1
       
     -- prop "ourAdd is commutative" $ \x y ->
     --   ourAdd x y `shouldBe` ourAdd y x

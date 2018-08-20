@@ -20,8 +20,10 @@ Initially, it was relying on Template Haskell to analyze /types/, using the the 
 module Data.Record.Encode (
   -- * One-hot encoding
     encodeOneHot
-  -- ** Types and Utilities
-    , OneHot(..), compareOH, oneHotV
+  -- ** Types 
+    , OneHot(..)
+  -- ** Utilities  
+    , compareOH, oneHotV
   -- * Generics-related
     , G
   ) where
@@ -80,11 +82,13 @@ oneHotV (OH n i) = V.create $ do
 
 
 -- | A one-hot encoding is a d-dimensional vector having a single component equal to 1 and all others equal to 0.
+-- We represent it here compactly as two integers: an integer dimension and an index (which must both be nonnegative).
 data OneHot = OH {
   oDim :: !Int -- ^ Dimension of ambient space (i.e. number of categories)
   , oIx :: !Int  -- ^ Index of nonzero entry
   } deriving (Eq, Show)
 
+-- | Compares two one-hot encodings for equality. Returns Nothing if the operand dimensions are not equal.
 compareOH :: OneHot -> OneHot -> Maybe Ordering
 compareOH (OH d1 i1) (OH d2 i2)
   | d1 /= d2 = Nothing
@@ -104,10 +108,3 @@ compareOH (OH d1 i1) (OH d2 i2)
   
   
 
-
-{- |
-
-from A
-  :: (C1 _ U1 :+: (C1 _ U1 +: C1 _ U1)) :+: (C1 _ U1 :+: (C1 _ U1 :+: C1 _ U1))
-
--}

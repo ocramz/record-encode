@@ -95,6 +95,8 @@ compareOH (OH d1 i1) (OH d2 i2)
   | otherwise = Just (compare i1 i2)
 
 
+
+
 -- class Encode i d where
 --   -- type ETy d :: *
 --   encode :: d -> V.Vector i

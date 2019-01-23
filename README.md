@@ -9,9 +9,9 @@ This library provides generic machinery to encode values of some algebraic type 
 
 Values of a sum type (e.g. enumerations) are also called "categorical" variables in statistics, because they encode a choice between a number of discrete categories.
 
-On the other hand, many algorithms rely on a purely numerical representation of data; the conversion code from valyes of a static type is often "boilerplate".
+On the other hand, many data science / machine learning algorithms rely on a purely numerical representation of data; the conversion code from values of a static type is often "boilerplate", i.e. largely repeated and not informative.
 
-Analyzing datasets that have a number of such categorical variables (that is, values having a sum type) requires mostly identical code for each; the `encodeOneHot` function provided here is a generic way (i.e. defined once and for all) to compute the one-hot representation of any sum type. 
+The `encodeOneHot` function provided here is a generic utility function (i.e. defined once and for all) to compute the one-hot representation of any sum type. 
 
 # Usage example
 

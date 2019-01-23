@@ -37,4 +37,4 @@ Please refer to the documentation of Data.Record.Encode for more examples and de
 
 # Acknowledgements
 
-Gagandeep Bhatia (@gagandeepb) for his GSoC '18 work on `Frames-beam`, Mark Karpov (@mrkkrp) for his Template Haskell tutorial, Anthony Cowley (@acowley) for `vinyl` and `Frames`, @mniip on Freenode #haskell for helping me better understand what can be done with generic programming.
+Gagandeep Bhatia (@gagandeepb) for his Google Summer of Code 2018 work on [`Frames-beam`](https://github.com/gagandeepb/Frames-beam), Mark Karpov (@mrkkrp) for his Template Haskell tutorial, Anthony Cowley (@acowley) for [`Frames`](https://hackage.haskell.org/package/Frames), @mniip on Freenode #haskell for helping me better understand what can be done with generic programming.

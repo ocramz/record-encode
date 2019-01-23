@@ -1,11 +1,17 @@
 # record-encode
 
+## Encoding categorical variables
+
 [![Build Status](https://travis-ci.org/ocramz/record-encode.png)](https://travis-ci.org/ocramz/record-encode)
 [![Hackage](https://img.shields.io/hackage/v/record-encode.svg)](https://hackage.haskell.org/package/record-encode)
 
 This library provides generic machinery to encode values of some algebraic type as points in a vector space.
 
-Analyzing datasets that have one or more categorical variables (that is, values having a sum type) typically requires a series of boilerplate transformations, and the `encodeOneHot` function provided here does precisely that.
+Values of a sum type (e.g. enumerations) are also called "categorical" variables in statistics, because they encode a choice between a number of discrete categories.
+
+On the other hand, many algorithms rely on a purely numerical representation of data; the conversion code from valyes of a static type is often "boilerplate".
+
+Analyzing datasets that have a number of such categorical variables (that is, values having a sum type) requires mostly identical code for each; the `encodeOneHot` function provided here is a generic way (i.e. defined once and for all) to compute the one-hot representation of any sum type. 
 
 # Usage example
 
@@ -26,6 +32,7 @@ Analyzing datasets that have one or more categorical variables (that is, values 
     OH {oDim = 3, oIx = 1}
 ```
 
+Please refer to the documentation of Data.Record.Encode for more examples and details.
 
 
 # Acknowledgements

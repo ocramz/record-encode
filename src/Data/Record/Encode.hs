@@ -51,15 +51,37 @@ type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 
 -- | Computes the one-hot encoding of a value of a sum type. A sum type is defined as a choice between N type constructors, each having zero or more fields.
 --
--- NB : This function will only compute the generic representation of the outermost constructor.
+-- The number of constructors becomes the dimensionality of the embedding space, and the constructor position (as defined in its implementation) is interpreted as the index of the nonzero coordinate.
+--
+-- NB : This function computes the generic representation /only/ up to the /outermost/ constructor (see examples below).
 --
 -- The type of the input value must be an instance of 'GHC.Generics.Generic' (from GHC.Generics) /and/ of 'Generics.SOP.Generic' (from the `generics-sop` library).
 --
+-- @
+-- > :set -XDeriveGeneric
+-- 
+-- > import qualified GHC.Generics as G
+-- > import qualified Generics.SOP as SOP
+-- > import Data.Record.Encode
+-- 
+-- > data X = A | B | C deriving (Enum, G.Generic)
+-- > instance SOP.Generic X
+-- @
+--
+-- The @B@ constructor is the second (i.e. position 1 counting from 0) of a choice of three :
+-- 
 -- >>> encodeOneHot B
 -- OH {oDim = 3, oIx = 1}
 --
+-- The @Just@ constructor is the second of a choice of two:
+--
 -- >>> encodeOneHot $ Just B
 -- OH {oDim = 2, oIx = 1}
+--
+-- The @Nothing@ constructor is the first:
+-- 
+-- >>> encodeOneHot (Nothing :: Maybe Int)
+-- OH {oDim = 2, oIx = 0}
 encodeOneHot :: forall a . G a => a -> OneHot
 encodeOneHot x = OH len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
@@ -79,8 +101,8 @@ oneHotV (OH n i) = V.create $ do
 -- | A one-hot encoding is a d-dimensional vector having a single component equal to 1 and all others equal to 0.
 -- We represent it here compactly as two integers: an integer dimension and an index (which must both be nonnegative).
 data OneHot = OH {
-  oDim :: !Int -- ^ Dimension of ambient space (i.e. number of categories)
-  , oIx :: !Int  -- ^ Index of nonzero entry
+  oDim :: !Int -- ^ Dimension of embedding space (i.e. number of categories)
+  , oIx :: !Int  -- ^ Index of nonzero coordinate
   } deriving (Eq, Show)
 
 -- | Compares two one-hot encodings for equality. Returns Nothing if the operand dimensions are not equal.

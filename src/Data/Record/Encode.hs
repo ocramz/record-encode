@@ -11,9 +11,7 @@ Processing datasets that have one or more categorical variables (which in other 
 
 == Internals
 
-This library makes use of generic programming to analyze both values and types (see the internal Data.Record.Encode.Generics module).
-
-Initially, it was relying on Template Haskell to analyze /types/, using the the instance generation machinery explained here: <https://markkarpov.com/tutorial/th.html#example-1-instance-generation>
+This library makes use of generic programming to analyze both values and types (see the 'Data.Record.Encode.Generics' module).
 
 
 -}
@@ -37,34 +35,31 @@ import qualified Data.Vector.Mutable as VM
 
 import Data.Record.Encode.Generics
 
+-- $setup
+-- >>> :set -XDeriveGeneric
+-- >>> import qualified GHC.Generics as G
+-- >>> import qualified Generics.SOP as SOP
+-- >>> import Data.Record.Encode
+-- >>> data X = A | B | C deriving (Enum, G.Generic)
+-- >>> instance SOP.Generic X
 
-
--- data X a = A | B a | C | D | E | F deriving G.Generic
--- instance Generic (X a)
-
-data X = A | B | C deriving (G.Generic)
-instance Generic X
 
 -- | Constraints necessary to 'encodeOneHot' a value.
 --
 -- NB: 'GVariants' is an internal typeclass, and this constraint is automatically satisfied if the type is an instance of 'G.Generic'
 type G a = (GVariants (G.Rep a), G.Generic a, Generic a)
 
--- | Computes the one-hot encoding of a value of a sum type.
+-- | Computes the one-hot encoding of a value of a sum type. A sum type is defined as a choice between N type constructors, each having zero or more fields.
+--
+-- NB : This function will only compute the generic representation of the outermost constructor.
 --
 -- The type of the input value must be an instance of 'GHC.Generics.Generic' (from GHC.Generics) /and/ of 'Generics.SOP.Generic' (from the `generics-sop` library).
 --
--- >>> :set -XDeriveGeneric
---
--- >>> import qualified GHC.Generics as G
--- >>> import qualified Generics.SOP as SOP
--- >>> import Data.Record.Encode
---
--- >>> data X = A | B | C deriving (G.Generic)
--- >>> instance SOP.Generic X
---
 -- >>> encodeOneHot B
 -- OH {oDim = 3, oIx = 1}
+--
+-- >>> encodeOneHot $ Just B
+-- OH {oDim = 2, oIx = 1}
 encodeOneHot :: forall a . G a => a -> OneHot
 encodeOneHot x = OH len i where
   len = fromIntegral $ gnconstructors (Proxy :: Proxy a)
@@ -89,6 +84,12 @@ data OneHot = OH {
   } deriving (Eq, Show)
 
 -- | Compares two one-hot encodings for equality. Returns Nothing if the operand dimensions are not equal.
+--
+-- >>> compareOH (OH 3 2) (OH 3 1)
+-- Just GT
+--
+-- >>> compareOH (OH 3 2) (OH 5 1)
+-- Nothing
 compareOH :: OneHot -> OneHot -> Maybe Ordering
 compareOH (OH d1 i1) (OH d2 i2)
   | d1 /= d2 = Nothing

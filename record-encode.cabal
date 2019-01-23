@@ -1,5 +1,5 @@
 name:                record-encode
-version:             0.2.2
+version:             0.2.3
 synopsis:            Generic encoding of records
 description:         Generic encoding of records. It currently provides a single, polymorphic function to encode sum types (i.e. categorical variables) as one-hot vectors.
 homepage:            https://github.com/ocramz/record-encode
@@ -19,7 +19,7 @@ library
   ghc-options:         -Wall 
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
-  other-modules:       Data.Record.Encode.Generics
+                       Data.Record.Encode.Generics
   build-depends:       base >= 4.7 && < 5
                      , generics-sop
                      , vector
@@ -38,6 +38,16 @@ test-suite spec
                      , hspec
                      , QuickCheck
                      , vector
+
+test-suite doctest
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             DocTest.hs
+  build-depends:       base
+                     , record-encode
+                     , doctest
 
 source-repository head
   type:     git

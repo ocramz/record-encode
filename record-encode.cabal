@@ -20,8 +20,10 @@ library
   hs-source-dirs:      src
   exposed-modules:     Data.Record.Encode
                        Data.Record.Encode.Generics
+                       Data.Record.Encode.Internal
   build-depends:       base >= 4.7 && < 5
                      , generics-sop
+                     , generic-trie == 0.3.1
                      , vector
 
 
